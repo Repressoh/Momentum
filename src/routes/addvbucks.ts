@@ -3,16 +3,12 @@ import path, { parse } from "path";
 const app = express.Router();
 import { dirname } from 'dirname-filename-esm';
 const __dirname = dirname(import.meta);
-import mongoose from 'mongoose';
 import axios from 'axios';
-import fs from 'node:fs';
 import dotenv from 'dotenv';
 dotenv.config({ path: path.resolve(__dirname, '../../.env') });
-
-
 import Profile from '../model/profiles.js';
 import User from '../model/user.js';
-console.log("Loaded addvbucks.ts");
+
 app.post("/addvbucks", async (req, res) => {
     const { authkey, username, addValue } = req.query;
   
@@ -22,15 +18,14 @@ app.post("/addvbucks", async (req, res) => {
 
     const lowerUsername = (username as string).toLowerCase();
   
-    if (authkey === process.env.authkey) {
+    if (authkey === process.env.AUTHKEY) {
       try {
         const user = await User.findOne({ username_lower: lowerUsername });
-
         if (user) {
           const filter = { accountId: user.accountId };
           const update = { $inc: { 'profiles.common_core.items.Currency:MtxPurchased.quantity': parseInt(addValue as string) } };
           const options = { new: true };
-  
+
           const updatedProfile = await Profile.findOneAndUpdate(filter, update, options);
   
           if (updatedProfile) {
@@ -47,7 +42,8 @@ app.post("/addvbucks", async (req, res) => {
         return res.status(500).send('Error while updating data.');
       }
     } else {
-      const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+      let ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress
+      ip = (ip ?? "").toString().replace('::ffff:', '');
       const date = new Date().toLocaleDateString();
       const time = new Date().toLocaleTimeString();
       const embeds = [
@@ -61,7 +57,7 @@ app.post("/addvbucks", async (req, res) => {
       const data = JSON.stringify({ embeds });
       const config_axios = {
         method: "POST",
-        url: process.env.webhook_url,
+        url: process.env.WEBHOOK_URL,
         headers: { "Content-Type": "application/json" },
         data: data,
       };
