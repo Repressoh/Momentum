@@ -10,7 +10,7 @@ import Profile from '../model/profiles.js';
 import User from '../model/user.js';
 
 app.post("/addvbucks", async (req, res) => {
-    const { authkey, username, addValue } = req.query;
+    const { authkey, username, addValue } = req.body;  
   
     if (!username) return res.status(400).send('No username provided.');
     if (!addValue) return res.status(400).send('No addValue provided.');
