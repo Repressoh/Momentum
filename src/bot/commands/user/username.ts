@@ -1,5 +1,6 @@
 import { SlashCommandBuilder, EmbedBuilder, ChatInputCommandInteraction } from 'discord.js';
 import Users from '../../../model/user.js';
+import { string } from 'zod';
 
 export const data = new SlashCommandBuilder()
 	.setName('username')
@@ -19,9 +20,10 @@ export async function execute(interaction: ChatInputCommandInteraction) {
 	let accessToken = global.accessTokens.find(i => i.accountId == user.accountId);
 	if (accessToken) return interaction.editReply({ content: "Failed to change username as you are currently logged in to Fortnite.\nRun the /sign-out-of-all-sessions command to sign out." });
 
-	const username = interaction.options.getString('username');
+	const username = interaction.options.getString('username'); 
 
 	await user.updateOne({ $set: { username: username } });
+	await user.updateOne({ $set: { username_lower: username?.toLocaleLowerCase } });
 
 	const embed = new EmbedBuilder()
 		.setTitle("Username changed")
