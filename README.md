@@ -27,3 +27,7 @@ Huge thanks to @thisisanto on Discord for the ESM rewrite and many code improvem
 <p align="center">
     <a href="https://docs.nexusfn.net"><img src="https://cdn.nexusfn.net/file/2023/07/prodcos.png" alt="Prod install" width=960 /></a>
 </p>
+
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=Nexus-FN/Momentum&type=Date)](https://star-history.com/#Nexus-FN/Momentum&Date)
