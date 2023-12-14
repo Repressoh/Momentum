@@ -18,7 +18,7 @@ import User from "../model/user.js";
 
 
 
-function waitFor2FA(req: { user: { discordId: any; }; }) {
+function waitFor2FA(req: { user: any; }) {
     return new Promise<void>((resolve) => {
         const checkCondition = async () => {
             while ((await kv.get(req.user.discordId)) !== "true") {
@@ -29,7 +29,7 @@ function waitFor2FA(req: { user: { discordId: any; }; }) {
         checkCondition();
     });
 }
-app.post("/account/api/oauth/token", async (req, res) => {
+app.post("/account/api/oauth/token", async (req: any, res) => {
     let clientId: any[];
     let rebootAccount: boolean = false;
 
@@ -49,7 +49,7 @@ app.post("/account/api/oauth/token", async (req, res) => {
 
     switch (req.body.grant_type) {
         case "client_credentials":
-            let ip: string = req.ip;
+            let ip = req.ip;
             /*         
                         if (!global.clientTokens) {
                             global.clientTokens = await redis.get('tokens');
@@ -91,31 +91,8 @@ app.post("/account/api/oauth/token", async (req, res) => {
 
             log.debug(`Reboot account: ${rebootAccount}`);
 
-            if (rebootAccount && Safety.env.ALLOW_REBOOT) {
-                const findUser = await User.findOne({ email: email.toLowerCase() });
-                if (findUser) {
-                    req.user = findUser;
-                } else {
-                    const numberWith8Digits = Math.floor(10000000 + Math.random() * 90000000);
-                    const registerUser = await functions.registerUser(numberWith8Digits, `reboot_${email.split("@")[0]}`, email, password, true)
-                    req.user = await User.findOne({ email: email.toLowerCase() }) as {
-                        password: string;
-                        username: string;
-                        created: Date;
-                        banned: boolean;
-                        discordId: string;
-                        accountId: string;
-                        username_lower: string;
-                        email: string;
-                        mfa: boolean;
-                        matchmakingId: string;
-                        canCreateCodes: boolean;
-                        isServer: boolean;
-                    };
-                }
-            } else {
-                req.user = await User.findOne({ email: email.toLowerCase() }).lean();
-            }
+
+            req.user = await User.findOne({ email: email.toLowerCase() }).lean();
 
             let err = () => error.createError(
                 "errors.com.epicgames.account.invalid_account_credentials",
@@ -157,14 +134,14 @@ app.post("/account/api/oauth/token", async (req, res) => {
                     label: 'Yes',
                     custom_id: 'yes'
                 }
-                
+
                 const noButton: APIButtonComponent = {
                     type: 2,
                     style: 4,
                     label: 'No',
                     custom_id: 'no'
                 }
-                
+
                 const row: APIActionRowComponent<APIButtonComponent> = {
                     type: 1,
                     components: [yesButton, noButton]
@@ -346,7 +323,7 @@ app.post("/account/api/oauth/token", async (req, res) => {
     await kv.set(req.user.discordId, 'false');
 
 });
-app.get("/account/api/oauth/verify", verifyToken, (req, res) => {
+app.get("/account/api/oauth/verify", verifyToken, (req: any, res) => {
     let token = req.headers["authorization"]!.replace("bearer ", "");
     const decodedToken = jwt.decode(token.replace("eg1~", "")) as JwtPayload;
 
@@ -415,7 +392,7 @@ app.post("/auth/v1/oauth/token", async (req, res) => {
     });
 })
 
-app.post("/epic/oauth/v2/token", async (req, res) => {
+app.post("/epic/oauth/v2/token", async (req: any, res) => {
     let clientId;
 
     try {
@@ -486,7 +463,7 @@ app.post("/epic/oauth/v2/token", async (req, res) => {
     });
 })
 
-function DateAddHours(pdate: Date, number: any) {
+export function DateAddHours(pdate: Date, number: any) {
     let date = pdate;
     date.setHours(date.getHours() + number);
 

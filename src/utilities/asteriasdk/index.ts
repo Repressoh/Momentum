@@ -1,7 +1,6 @@
 import os from "os";
 
 type iKey = "name" | "id" | "description";
-type iEntity = "banners" | "battleroyale" | "playlists" | "pois";
 
 interface AsteriaOptions {
     collectAnonStats: boolean;
@@ -30,67 +29,38 @@ class Asteria {
             throw new TypeError("The 'collectAnonStats' option must be a boolean value of either true or false.");
         }
         this.uid = this.collectAnonStats ? generateUniqueIdentifier() : "disabled";
-        this.usedURL = new URL(options.usedURL ? options.usedURL : "https://api.asteria.nexusfn.net/api/");
+        this.usedURL = new URL(options.usedURL ? options.usedURL : "https://fortnite.rest/");
         this.throwErrors = options.throwErrors ? options.throwErrors : false;
     }
 
 
-    private async getEntity(key: iKey, value: string, entity: iEntity, ignoreErrors: boolean): Promise<any> {
-        const req = await fetch(`${this.usedURL}${entity}/`, {
+    private async getEntity(key: iKey, value: string, ignoreErrors: boolean): Promise<any> {
+        const req = await fetch(`${this.usedURL}/cosmetics?${key}=${value}`, {
             method: "GET",
             headers: {
                 "key": key,
                 [key]: value,
-                "uid": this.uid
             }
         });
 
         if (!req.ok) {
             if (req.status === 404) {
                 if (ignoreErrors) return;
-                if (this.throwErrors) throw new Error(`Entity ${entity} could not be found by Key ${key} and Value ${value}. Please check your Key and Value.`);
+                if (this.throwErrors) throw new Error(`Entity $could not be found by Key ${key} and Value ${value}. Please check your Key and Value.`);
             } else {
                 if (ignoreErrors) return;
-                throw new Error(`Error ${req.status} occurred while fetching ${entity} with key ${key} and value ${value}.`);
+                throw new Error(`Error ${req.status} occurred while fetching cosmetic with key ${key} and value ${value}.`);
             }
         }
 
-        const reqJson = await req.json();
-        const document = reqJson.document;
-
-        return await document;
+        return await req.json();
     }
 
     public async getCosmetic(key: iKey, value: string, ignoreErrors?: boolean): Promise<any> {
         try {
             if (ignoreErrors !== undefined)
-                return this.getEntity(key, value, "battleroyale", ignoreErrors);
+                return this.getEntity(key, value, ignoreErrors);
         } catch (error: any) {
-        }
-    };
-
-    public async getBanner(key: iKey, value: string, ignoreErrors?: boolean): Promise<any> {
-        try {
-            if (ignoreErrors !== undefined)
-                return this.getEntity(key, value, "banners", ignoreErrors);
-        } catch (error: any) {
-        }
-    };
-
-    public async getPlaylist(key: iKey, value: string, ignoreErrors?: boolean): Promise<any> {
-        try {
-            if (ignoreErrors !== undefined)
-                return this.getEntity(key, value, "playlists", ignoreErrors);
-        } catch (error: any) {
-        }
-    };
-
-    public async getPoi(key: iKey, value: string, ignoreErrors?: boolean): Promise<any> {
-        try {
-            if (ignoreErrors !== undefined)
-                return this.getEntity(key, value, "pois", ignoreErrors);
-        } catch (error: any) {
-            throw new Error(error);
         }
     };
 }

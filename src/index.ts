@@ -1,4 +1,3 @@
-
 import express from "express";
 import mongoose from "mongoose";
 import fs from "fs";
@@ -7,7 +6,6 @@ import jwt, { JwtPayload } from 'jsonwebtoken';
 import rateLimit from "express-rate-limit";
 import { dirname } from 'dirname-filename-esm';
 import destr from "destr";
-
 
 import { client } from './bot/index.js';
 import kv from './utilities/kv.js';
@@ -18,22 +16,26 @@ import log from './utilities/structs/log.js';
 import { version } from "./utilities/cron/update.js";
 
 import "./utilities/cron/update.js";
-import "./utilities/cron/shop.js";
+import { DateAddHours } from "./routes/auth.js";
 
+const __dirname = dirname(import.meta);
 
 global.kv = kv;
 global.safety = Safety;
+global.JWT_SECRET = functions.MakeID();
+global.safetyEnv = Safety.env;
+global.accessTokens = [];
+global.refreshTokens = [];
+global.clientTokens = [];
+global.smartXMPP = false;
+global.exchangeCodes = [];
 
 const app = express();
-
-const __dirname = dirname(import.meta);
+const PORT = Safety.env.PORT;
 
 await Safety.airbag();
 await client.login(process.env.BOT_TOKEN);
 
-global.JWT_SECRET = functions.MakeID();
-const PORT = Safety.env.PORT;
-global.safetyEnv = Safety.env;
 let redisTokens: any;
 let tokens: any;
 
@@ -59,7 +61,6 @@ for (let tokenType in tokens) {
     }
 }
 
-//Cannot use MemoryKV for this because it doesnt stay after restart
 if (Safety.env.USE_REDIS) {
     await kv.set('tokens', JSON.stringify(tokens, null, 2));
 } else {
@@ -75,9 +76,6 @@ if (!tokens || !tokens.accessTokens) {
 global.accessTokens = tokens.accessTokens;
 global.refreshTokens = tokens.refreshTokens;
 global.clientTokens = tokens.clientTokens;
-global.smartXMPP = false;
-
-global.exchangeCodes = [];
 
 mongoose.set("strictQuery", true);
 
@@ -98,7 +96,6 @@ mongoose.connection.on("error", (err) => {
 });
 
 app.get("/", (req, res) => {
-
     res.status(200).json({
         status: "ok",
         version: version,
@@ -110,31 +107,25 @@ app.get("/", (req, res) => {
         cpuUsage: process.cpuUsage(),
         environment: process.env.NODE_ENV,
     });
-
 });
 
 app.use(rateLimit({ windowMs: 0.5 * 60 * 1000, max: 45 }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-for (const fileName of fs.readdirSync(path.join(__dirname, "routes"))) {
-    if (fileName.includes(".map")) continue;;
-    try {
-        app.use((await import(`file://${__dirname}/routes/${fileName}`)).default);
-    } catch (error) {
-        console.log(fileName, error)
-    }
-}
-
-for (const fileName of fs.readdirSync(path.join(__dirname, "api"))) {
-    if (fileName.includes(".map")) continue;
-
-    try {
-        app.use((await import(`file://${__dirname}/api/${fileName}`)).default);
-    } catch (error) {
-        console.log(fileName, error)
+const importRoutes = async (dir) => {
+    for (const fileName of fs.readdirSync(path.join(__dirname, dir))) {
+        if (fileName.includes(".map")) continue;
+        try {
+            app.use((await import(`file://${__dirname}/${dir}/${fileName}`)).default);
+        } catch (error) {
+            console.log(fileName, error)
+        }
     }
 };
+
+await importRoutes("routes");
+await importRoutes("api");
 
 app.listen(PORT, () => {
     log.backend(`App started listening on port ${PORT}`);
@@ -151,22 +142,13 @@ const loggedUrls = new Set<string>();
 
 app.use((req, res, next) => {
     const url = req.originalUrl;
-    if (loggedUrls.has(url)) {
-        return next();
+    if (!loggedUrls.has(url)) {
+        log.debug(`Missing endpoint: ${req.method} ${url} request port ${req.socket.localPort}`);
+        error.createError(
+            "errors.com.epicgames.common.not_found",
+            "Sorry the resource you were trying to find could not be found",
+            undefined, 1004, undefined, 404, res
+        );
     }
-
-    log.debug(`Missing endpoint: ${req.method} ${url} request port ${req.socket.localPort}`);
-
-    error.createError(
-        "errors.com.epicgames.common.not_found",
-        "Sorry the resource you were trying to find could not be found",
-        undefined, 1004, undefined, 404, res
-    );
+    next();
 });
-
-function DateAddHours(pdate, number) {
-    let date = pdate;
-    date.setHours(date.getHours() + number);
-
-    return date;
-}

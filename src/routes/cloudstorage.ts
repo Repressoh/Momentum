@@ -66,7 +66,7 @@ if (Safety.env.USE_S3 == true) {
 }
 
 //Save settings stuff
-app.use((req, res, next) => {
+app.use((req: any, res, next) => {
     if (req.originalUrl.toLowerCase().startsWith("/fortnite/api/cloudstorage/user/") && req.method === "PUT") {
         req.rawBody = "";
         req.setEncoding("latin1");
@@ -295,7 +295,7 @@ app.get("/fortnite/api/cloudstorage/user/*/:file", verifyToken, async (req, res)
 
 })
 
-app.get("/fortnite/api/cloudstorage/user/:accountId", verifyToken, async (req, res) => {
+app.get("/fortnite/api/cloudstorage/user/:accountId", verifyToken, async (req: any, res) => {
 
     const memory = functions.GetVersionInfo(req);
     if (!seasons.includes(memory.season)) return res.json([])
@@ -358,7 +358,7 @@ app.get("/fortnite/api/cloudstorage/user/:accountId", verifyToken, async (req, r
     }
 });
 
-app.put("/fortnite/api/cloudstorage/user/*/:file", verifyToken, async (req, res) => {
+app.put("/fortnite/api/cloudstorage/user/*/:file", verifyToken, async (req: any, res) => {
     const userId = req.params[0];
     const filename = req.params.file.toLowerCase();
 

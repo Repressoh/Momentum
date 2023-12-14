@@ -16,7 +16,7 @@ class KV {
         return set === 'OK';
     }
 
-    async setttl(key: string, value: any, ttl: number): Promise<boolean> {
+    async setTTL(key: string, value: any, ttl: number): Promise<boolean> {
         const set = Safety.env.USE_REDIS ? await redis?.set(key, value, 'EX', ttl) : await memkv.set(key, value, ttl);
         return set === 'OK';
     }

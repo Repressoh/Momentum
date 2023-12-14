@@ -4,7 +4,7 @@ const app = express.Router();
 import { verifyToken } from "../tokenManager/tokenVerify.js";
 import User from "../model/user.js";
 
-app.post("/fortnite/api/game/v2/toxicity/account/:unsafeReporter/report/:reportedPlayer", verifyToken, async (req: Request, res) => {
+app.post("/fortnite/api/game/v2/toxicity/account/:unsafeReporter/report/:reportedPlayer", verifyToken, async (req: any, res) => {
 
     const reporter = req.user.accountId;
     const reportedPlayer = req.params.reportedPlayer;

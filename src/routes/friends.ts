@@ -21,7 +21,7 @@ app.get("/friends/api/public/list/fortnite/*/recentPlayers", (req, res) => {
     res.json([]);
 });
 
-app.get("/friends/api/public/friends/:accountId", verifyToken, async (req, res) => {
+app.get("/friends/api/public/friends/:accountId", verifyToken, async (req: any, res) => {
     let response: Object[] = [];
 
     const friends = await Friends.findOne({ accountId: req.user.accountId }).lean();
@@ -59,7 +59,7 @@ app.get("/friends/api/public/friends/:accountId", verifyToken, async (req, res) 
     res.json(response);
 });
 
-app.post("/friends/api/*/friends*/:receiverId", verifyToken, async (req, res) => {
+app.post("/friends/api/*/friends*/:receiverId", verifyToken, async (req: any, res) => {
     let sender = await Friends.findOne({ accountId: req.user.accountId });
     let receiver = await Friends.findOne({ accountId: req.params.receiverId });
     if (!sender || !receiver) return res.status(403).end();
@@ -76,7 +76,7 @@ app.post("/friends/api/*/friends*/:receiverId", verifyToken, async (req, res) =>
     res.status(204).end();
 });
 
-app.all("/friends/api/v1/*/friends/:friendId/alias", verifyToken, getRawBody, async (req, res) => {
+app.all("/friends/api/v1/*/friends/:friendId/alias", verifyToken, getRawBody, async (req: any, res) => {
     let friends = await Friends.findOne({ accountId: req.user.accountId }).lean();
 const aliasPattern = /[\w \-_.'\u2018\u2019]+/gu;
 
@@ -125,7 +125,7 @@ export function getRawBody(req, res, next) {
     }
 }
 
-app.delete("/friends/api/*/friends*/:receiverId", verifyToken, async (req, res) => {
+app.delete("/friends/api/*/friends*/:receiverId", verifyToken, async (req: any, res) => {
     let sender = await Friends.findOne({ accountId: req.user.accountId });
     let receiver = await Friends.findOne({ accountId: req.params.receiverId });
     if (!sender || !receiver) return res.status(403).end();
@@ -138,7 +138,7 @@ app.delete("/friends/api/*/friends*/:receiverId", verifyToken, async (req, res) 
     res.status(204).end();
 });
 
-app.post("/friends/api/*/blocklist*/:receiverId", verifyToken, async (req, res) => {
+app.post("/friends/api/*/blocklist*/:receiverId", verifyToken, async (req: any, res) => {
     let sender = await Friends.findOne({ accountId: req.user.accountId });
     let receiver = await Friends.findOne({ accountId: req.params.receiverId });
     if (!sender || !receiver) return res.status(403).end();
@@ -151,7 +151,7 @@ app.post("/friends/api/*/blocklist*/:receiverId", verifyToken, async (req, res) 
     res.status(204).end();
 });
 
-app.delete("/friends/api/*/blocklist*/:receiverId", verifyToken, async (req, res) => {
+app.delete("/friends/api/*/blocklist*/:receiverId", verifyToken, async (req: any, res) => {
     let sender = await Friends.findOne({ accountId: req.user.accountId });
     let receiver = await Friends.findOne({ accountId: req.params.receiverId });
     if (!sender || !receiver) return res.status(403).end();
@@ -161,7 +161,7 @@ app.delete("/friends/api/*/blocklist*/:receiverId", verifyToken, async (req, res
     res.status(204).end();
 });
 
-app.get("/friends/api/v1/:accountId/summary", verifyToken, async (req, res) => {
+app.get("/friends/api/v1/:accountId/summary", verifyToken, async (req: any, res) => {
     let response: any = {
         "friends": [],
         "incoming": [],
@@ -212,7 +212,7 @@ app.get("/friends/api/v1/:accountId/summary", verifyToken, async (req, res) => {
     res.json(response);
 });
 
-app.get("/friends/api/public/blocklist/*", verifyToken, async (req, res) => {
+app.get("/friends/api/public/blocklist/*", verifyToken, async (req: any, res) => {
     let friends = await Friends.findOne({ accountId: req.user.accountId }).lean();
 
     res.json({

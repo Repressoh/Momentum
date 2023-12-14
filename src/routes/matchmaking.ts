@@ -17,7 +17,7 @@ app.get("/fortnite/api/matchmaking/session/findPlayer/*", (req, res) => {
     res.status(200).end();
 });
 
-app.get("/fortnite/api/game/v2/matchmakingservice/ticket/player/*", verifyToken, async (req, res) => {
+app.get("/fortnite/api/game/v2/matchmakingservice/ticket/player/*", verifyToken, async (req: any, res) => {
     const playerCustomKey = qs.parse(req.url.split("?")[1], { ignoreQueryPrefix: true })['player.option.customKey'] as string;
     const bucketId = qs.parse(req.url.split("?")[1], { ignoreQueryPrefix: true })['bucketId'] as string;
     if (typeof bucketId !== "string" || bucketId.split(":").length !== 4) {
@@ -75,7 +75,7 @@ app.get("/fortnite/api/game/v2/matchmakingservice/ticket/player/*", verifyToken,
 
 });
 
-app.get("/fortnite/api/game/v2/matchmaking/account/:accountId/session/:sessionId", (req, res) => {
+app.get("/fortnite/api/game/v2/matchmaking/account/:accountId/session/:sessionId", (req: any, res) => {
     res.json({
         "accountId": req.params.accountId,
         "sessionId": req.params.sessionId,
@@ -83,7 +83,7 @@ app.get("/fortnite/api/game/v2/matchmaking/account/:accountId/session/:sessionId
     });
 });
 
-app.get("/fortnite/api/matchmaking/session/:sessionId", verifyToken, async (req, res) => {
+app.get("/fortnite/api/matchmaking/session/:sessionId", verifyToken, async (req: any, res) => {
 
     const playlist = await global.kv.get(`playerPlaylist:${req.user.accountId}`);
 

@@ -107,7 +107,7 @@ app.get("/api/v1/search/:accountId", async (req, res) => {
     res.json(response);
 });
 
-app.get("/account/api/public/account/:accountId", verifyToken, (req: Request, res) => {
+app.get("/account/api/public/account/:accountId", verifyToken, (req: any, res) => {
     res.json({
         id: req.user.accountId,
         displayName: req.user.username,

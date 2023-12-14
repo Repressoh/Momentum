@@ -18,7 +18,7 @@ app.get("/fortnite/api/storefront/v2/catalog", (req, res) => {
     res.json(functions.getItemShop());
 });
 
-app.get("/fortnite/api/storefront/v2/gift/check_eligibility/recipient/:recipientId/offer/:offerId", verifyToken, async (req: Request, res) => {
+app.get("/fortnite/api/storefront/v2/gift/check_eligibility/recipient/:recipientId/offer/:offerId", verifyToken, async (req: any, res) => {
     const findOfferId = functions.getOfferID(req.params.offerId);
     if (!findOfferId) {
         return error.createError(
