@@ -31,7 +31,7 @@ export async function execute(interaction: ChatInputCommandInteraction) {
     // Clear the canvas
     context.clearRect(0, 0, canvas.width, canvas.height);
 
-    const backgroundImage = await Canvas.loadImage('https://cdn.nexusfn.net/file/2023/07/2p0whppkorm21.webp');
+    const backgroundImage = await Canvas.loadImage('https://i.redd.it/zs2ec4w041251.png');
     context.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
 
     const imagePromises = shopItems.map(async (item, i) => {
